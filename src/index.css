@@ -1,16 +1,30 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4 class-based dark mode ─────────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Global smooth theme transition ─────────────────────────────────────── */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Preserve animation-specific transitions (don't override) */
+.animate-fade-in, .animate-spin, .animate-pulse {
+  transition: none;
+}
+
 @theme {
-    --font-roboto: "Roboto", sans-serif;
-    --color-primary: #2563EB;
+  --font-roboto: "Roboto", sans-serif;
+  --color-primary: #2563EB;
   --color-success: #22C55E;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
 
   --color-background: #F8FAFC;
   --color-card: #FFFFFF;
-                            
-  
+
   --color-text-dark: #0F172A;
   --color-text-gray: #64748B;
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { 
@@ -16,20 +16,7 @@ import StatsCard from "../components/dashboard/StatsCard";
 import PipelineOverview from "../components/dashboard/PipelineOverview";
 import RecentLeads from "../components/dashboard/RecentLeads";
 import QuickActions from "../components/dashboard/QuickActions";
-
-// High-fidelity initial seed data representing startup CRM prospects
-const initialLeads = [
-  { id: 1, name: "Alice Vance", company: "CyberSpace Tech", value: 12500, status: "Qualified", createdAt: "2026-06-15" },
-  { id: 2, name: "David Miller", company: "Alpha Systems", value: 6200, status: "Contacted", createdAt: "2026-06-14" },
-  { id: 3, name: "Emma Watson", company: "DevLink Solutions", value: 8500, status: "Qualified", createdAt: "2026-06-13" },
-  { id: 4, name: "Frank Wright", company: "Global Corp", value: 15000, status: "New", createdAt: "2026-06-12" },
-  { id: 5, name: "Grace Hopper", company: "Quantum Labs", value: 24000, status: "New", createdAt: "2026-06-11" },
-  { id: 6, name: "Henry Jekyll", company: "Hydra Labs", value: 4500, status: "Lost", createdAt: "2026-06-10" },
-  { id: 7, name: "Irene Adler", company: "Bohemia Media", value: 9200, status: "Contacted", createdAt: "2026-06-09" },
-  { id: 8, name: "John Smith", company: "TechNova", value: 10500, status: "New", createdAt: "2026-06-08" },
-  { id: 9, name: "Katherine Goble", company: "NASA Dev", value: 35000, status: "Qualified", createdAt: "2026-06-07" },
-  { id: 10, name: "Leonardo Vinci", company: "Renaissance Art", value: 18000, status: "Lost", createdAt: "2026-06-06" },
-];
+import { useLeads } from "../context/LeadContext";
 
 // Potential mock prospects for the "Add Lead" quick action trigger
 const mockProspectPool = [
@@ -50,13 +37,14 @@ const mockProspectPool = [
  */
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [leads, setLeads] = useState(initialLeads);
+  const { leads, addLead } = useLeads();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Compute stats metrics dynamically based on current CRM lead state
   const stats = useMemo(() => {
     const totalLeads = leads.length;
-    const qualifiedLeads = leads.filter((l) => l.status === "Qualified").length;
+    // Context status mappings: "Meeting Scheduled", "Proposal Sent", and "Won" qualify as high-value leads
+    const qualifiedLeads = leads.filter((l) => ["Meeting Scheduled", "Proposal Sent", "Won"].includes(l.status)).length;
     
     // Conversion rate defined as percentage of qualified leads out of total leads
     const conversionRate = totalLeads > 0 
@@ -65,8 +53,8 @@ export default function Dashboard() {
 
     // Revenue Potential calculated as total deal values of Qualified prospects
     const totalRevenuePotential = leads
-      .filter((l) => l.status === "Qualified")
-      .reduce((sum, current) => sum + current.value, 0);
+      .filter((l) => ["Meeting Scheduled", "Proposal Sent", "Won"].includes(l.status))
+      .reduce((sum, current) => sum + (current.value || 5000), 0);
 
     return {
       totalLeads,
@@ -90,17 +78,26 @@ export default function Dashboard() {
    */
   const handleAddLead = () => {
     const randomProspect = mockProspectPool[Math.floor(Math.random() * mockProspectPool.length)];
-    const newLead = {
-      id: Date.now(),
+    
+    // Map status 'Qualified' to 'Proposal Sent' to match LeadContext constraints
+    const mappedStatus = randomProspect.status === "Qualified" ? "Proposal Sent" : randomProspect.status;
+    
+    // Generate mock details for the new prospect
+    const email = `${randomProspect.name.toLowerCase().replace(/\s+/g, ".")}@${randomProspect.company.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`;
+    const phone = `+1 (555) 01${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const source = ["Website", "Referral", "LinkedIn", "Cold Call"][Math.floor(Math.random() * 4)];
+
+    addLead({
       name: randomProspect.name,
       company: randomProspect.company,
-      value: randomProspect.value,
-      status: randomProspect.status,
-      createdAt: new Date().toISOString().split("T")[0],
-    };
+      email,
+      phone,
+      status: mappedStatus,
+      source,
+      value: randomProspect.value
+    });
 
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
-    toast.success(`Prospect "${newLead.name}" added to ${newLead.company}!`, {
+    toast.success(`Prospect "${randomProspect.name}" added to ${randomProspect.company}!`, {
       style: {
         borderRadius: "12px",
         background: "#0F172A",
@@ -188,8 +185,8 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Executive Workspace</span>
+                
+                <span></span>
               </div>
               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
                 Welcome Back, Naveen

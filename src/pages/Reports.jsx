@@ -31,7 +31,6 @@ export default function Reports() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
-            <Sparkles className="h-3.5 w-3.5" />
             <span>Business Intelligence</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">CRM Analytics & Reports</h1>
