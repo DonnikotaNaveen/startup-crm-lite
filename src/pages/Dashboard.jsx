@@ -147,7 +147,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] transition-colors duration-200 dark:bg-gray-950">
       {/* Toast Notification Container */}
       <Toaster position="top-right" />
 
@@ -158,22 +158,22 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
         
         {/* Mobile Header Bar */}
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 shadow-xs lg:hidden">
+        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 shadow-xs lg:hidden dark:border-gray-700 dark:bg-gray-900/90">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
               aria-expanded={sidebarOpen}
               aria-controls="main-sidebar"
               aria-label="Open navigation sidebar"
             >
               <Menu className="h-5.5 w-5.5" />
             </button>
-            <span className="text-base font-extrabold text-slate-900 tracking-tight">
+            <span className="text-base font-extrabold text-slate-900 tracking-tight dark:text-white">
               Startup CRM Lite
             </span>
           </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
             DN
           </div>
         </header>
@@ -188,18 +188,18 @@ export default function Dashboard() {
                 
                 <span></span>
               </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1 dark:text-white">
                 Welcome Back, Naveen
               </h1>
-              <p className="text-sm font-semibold text-slate-400 mt-1">
+              <p className="text-sm font-semibold text-slate-400 mt-1 dark:text-gray-400">
                 Here is a quick overview of your sales performance for this period.
               </p>
             </div>
 
             {/* Date Widget */}
-            <div className="flex items-center gap-2.5 px-4.5 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs self-start md:self-auto">
+            <div className="flex items-center gap-2.5 px-4.5 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs self-start md:self-auto dark:border-gray-700 dark:bg-gray-800">
               <Calendar className="h-4.5 w-4.5 text-slate-400" />
-              <span className="text-xs font-extrabold text-slate-600">{formattedDate}</span>
+              <span className="text-xs font-extrabold text-slate-600 dark:text-gray-300">{formattedDate}</span>
             </div>
           </div>
 

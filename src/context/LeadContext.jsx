@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 /**
  * @typedef {Object} Lead
@@ -8,6 +8,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
  * @property {string} email
  * @property {string} phone
  * @property {'New' | 'Contacted' | 'Meeting Scheduled' | 'Proposal Sent' | 'Won' | 'Lost'} status
+ * @property {number} value
  * @property {'Website' | 'Referral' | 'LinkedIn' | 'Cold Call' | 'Email Campaign' | 'Other'} source
  * @property {string} createdAt ISO date string
  */
@@ -100,7 +101,7 @@ export const LeadProvider = ({ children }) => {
    * @param {string} id ID of the lead to retrieve.
    * @returns {Lead | undefined} The matching lead when found.
    */
-  const getLeadById = (id) => leads.find((lead) => lead.id === id);
+  const getLeadById = useCallback((id) => leads.find((lead) => lead.id === id), [leads]);
 
   const value = useMemo(
     () => ({
@@ -110,7 +111,7 @@ export const LeadProvider = ({ children }) => {
       deleteLead,
       getLeadById,
     }),
-    [leads],
+    [leads, getLeadById],
   );
 
   return <LeadContext.Provider value={value}>{children}</LeadContext.Provider>;

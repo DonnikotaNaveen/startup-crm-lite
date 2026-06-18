@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { AnalyticsFilters } from '../components/analytics/AnalyticsFilters';
 import { StatsCards } from '../components/analytics/StatsCards';
@@ -9,6 +9,7 @@ import { LineChartCard } from '../components/analytics/LineChartCard';
 import { RevenueChartCard } from '../components/analytics/RevenueChartCard';
 import { LeadSourceChart } from '../components/analytics/LeadSourceChart';
 import { SalesVelocityCard } from '../components/analytics/SalesVelocityCard';
+import { ForecastCard } from '../components/analytics/ForecastCard';
 import { ActivityHeatmap } from '../components/analytics/ActivityHeatmap';
 import { TopPerformersCard } from '../components/analytics/TopPerformersCard';
 import { EmptyAnalyticsState } from '../components/analytics/EmptyAnalyticsState';
@@ -18,22 +19,21 @@ export default function Analytics() {
   const [dateRange, setDateRange] = useState('30');
   const analytics = useAnalytics(dateRange);
 
-  const isLoading = !analytics || Object.keys(analytics).length === 0;
+  const isLoading = !analytics;
   const isEmpty = analytics?.totalLeads === 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Analytics Dashboard</h1>
-          <p className="text-slate-600">
-            Real-time insights into your sales pipeline and lead performance.
-          </p>
-        </div>
-
-        {/* Filters */}
-        <div className="mb-8">
+    <div className="min-h-screen space-y-6 bg-slate-50 animate-fade-in dark:bg-gray-950">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Analytics Dashboard
+            </h1>
+            <p className="mt-1 text-sm font-medium text-slate-500 dark:text-gray-400">
+              Sales performance, pipeline health, and revenue trends from your CRM leads.
+            </p>
+          </div>
           <AnalyticsFilters dateRange={dateRange} onDateRangeChange={setDateRange} />
         </div>
 
@@ -44,7 +44,7 @@ export default function Analytics() {
         ) : (
           <>
             {/* KPI Cards */}
-            <div className="mb-8">
+            <div>
               <StatsCards
                 totalLeads={analytics.totalLeads}
                 conversionRate={analytics.conversionRate}
@@ -56,35 +56,34 @@ export default function Analytics() {
             </div>
 
             {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <PieChartCard data={analytics.statusDistribution} />
               <FunnelChartCard data={analytics.funnelData} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <BarChartCard data={analytics.monthlyLeads} />
               <LineChartCard data={analytics.conversionByMonth} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <RevenueChartCard data={analytics.revenueByMonth} />
               <LeadSourceChart data={analytics.leadSources} />
             </div>
 
-            {/* Sales Velocity & Forecast */}
-            <div className="mb-8">
-              <SalesVelocityCard
-                salesVelocity={analytics.salesVelocity}
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <SalesVelocityCard salesVelocity={analytics.salesVelocity} />
+              <ForecastCard
                 forecastRevenue={analytics.forecastRevenue}
+                pipelineValue={analytics.pipelineValue}
+                wonRevenue={analytics.wonRevenue}
               />
             </div>
 
-            {/* Activity Heatmap */}
-            <div className="mb-8">
+            <div>
               <ActivityHeatmap data={analytics.activityHeatmap} />
             </div>
 
-            {/* Top Performers */}
             <div>
               <TopPerformersCard data={analytics.topPerformers} />
             </div>

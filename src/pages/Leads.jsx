@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Plus, LayoutGrid, List, X, Sparkles } from "lucide-react";
+import { Plus, LayoutGrid, List, X } from "lucide-react";
 
 import LeadForm from "../components/leads/LeadForm";
 import LeadCard from "../components/leads/LeadCard";
@@ -81,7 +81,7 @@ export default function Leads() {
   const handleFormSubmit = (formData) => {
     if (selectedLead) {
       // UPDATE mode
-      updateLead(formData);
+      updateLead(selectedLead.id, formData);
       toast.success(`Prospect "${formData.name}" details updated.`, {
         style: {
           borderRadius: "12px",
@@ -126,17 +126,17 @@ export default function Leads() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="w-full max-w-full overflow-hidden space-y-6 animate-fade-in">
       <Toaster position="top-right" />
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex w-full max-w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
         
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1 dark:text-white">
             Lead Management
           </h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">
+          <p className="text-sm text-slate-500 font-medium mt-1 dark:text-gray-400">
             Track, segment, and progress client deals through the sales pipeline stages.
           </p>
         </div>
@@ -150,19 +150,19 @@ export default function Leads() {
       </div>
 
       {/* ── Search + View toggle ────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row gap-3 bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
+      <div className="flex w-full max-w-full flex-col gap-3 overflow-hidden bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs md:flex-row dark:border-gray-700 dark:bg-gray-800">
 
         {/* SearchBar component — debounced */}
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
         {/* Table / Card view toggle */}
-        <div className="flex items-center border border-slate-200/60 rounded-xl p-0.5 bg-slate-50 shrink-0">
+        <div className="flex items-center border border-slate-200/60 rounded-xl p-0.5 bg-slate-50 shrink-0 dark:border-gray-700 dark:bg-gray-900">
           <button
             onClick={() => setViewMode("table")}
             className={`p-1.5 rounded-lg transition-all focus:outline-none cursor-pointer ${
               viewMode === "table"
-                ? "bg-white text-blue-600 shadow-xs border-slate-200/20"
-                : "text-slate-400 hover:text-slate-700"
+                ? "bg-white text-blue-600 shadow-xs border-slate-200/20 dark:bg-gray-800 dark:text-blue-400"
+                : "text-slate-400 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-200"
             }`}
             title="Table View"
           >
@@ -172,8 +172,8 @@ export default function Leads() {
             onClick={() => setViewMode("card")}
             className={`p-1.5 rounded-lg transition-all focus:outline-none cursor-pointer ${
               viewMode === "card"
-                ? "bg-white text-blue-600 shadow-xs border-slate-200/20"
-                : "text-slate-400 hover:text-slate-700"
+                ? "bg-white text-blue-600 shadow-xs border-slate-200/20 dark:bg-gray-800 dark:text-blue-400"
+                : "text-slate-400 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-200"
             }`}
             title="Card View"
           >
@@ -190,11 +190,11 @@ export default function Leads() {
       />
 
       {/* ── Main content grid ────────────────────────────────────────────── */}
-      <div className="transition-all duration-300">
+      <div className="w-full max-w-full overflow-hidden transition-all duration-300">
 
         {/* Table view (hidden on mobile) */}
         {viewMode === "table" && (
-          <div className="hidden md:block">
+          <div className="hidden w-full max-w-full overflow-hidden md:block">
             {filteredLeads.length > 0 ? (
               <LeadTable
                 leads={filteredLeads}
@@ -213,7 +213,7 @@ export default function Leads() {
         {/* Card view — always rendered on mobile, or when toggled */}
         <div className={viewMode === "table" ? "md:hidden" : ""}>
           {filteredLeads.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredLeads.map((lead) => (
                 <LeadCard
                   key={lead.id}
@@ -234,13 +234,13 @@ export default function Leads() {
 
       {/* ── Add / Edit Modal ────────────────────────────────────────────── */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in dark:bg-black/60">
           {/* Backdrop close */}
           <div className="absolute inset-0" onClick={handleCloseModal} aria-hidden="true" />
 
           {/* Modal content */}
           <div
-            className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200/50 p-6 z-10 transform scale-100 transition-transform duration-300 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-xl bg-white rounded-2xl shadow-xl border border-slate-200/50 p-5 z-10 transform scale-100 transition-transform duration-300 max-h-[90vh] overflow-y-auto dark:border-gray-700 dark:bg-gray-900"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -248,13 +248,14 @@ export default function Leads() {
             {/* Close button */}
             <button
               onClick={handleCloseModal}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500/20 cursor-pointer"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500/20 cursor-pointer dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200"
               aria-label="Close dialog"
             >
               <X className="h-5 w-5" />
             </button>
 
             <LeadForm
+              key={selectedLead?.id || "new-lead"}
               initialData={selectedLead}
               onSubmit={handleFormSubmit}
               onCancel={handleCloseModal}

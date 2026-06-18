@@ -1,7 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useCallback, useEffect, useState, useContext } from "react";
 
 export const ThemeContext = createContext(null);
+
+const THEME_STORAGE_KEY = "startup-crm-theme";
+
+const applyThemePreference = (enabled) => {
+  document.documentElement.classList.toggle("dark", enabled);
+  localStorage.setItem(THEME_STORAGE_KEY, enabled ? "dark" : "light");
+};
 
 /**
  * ThemeProvider manages global dark/light mode state.
@@ -11,30 +18,26 @@ export const ThemeContext = createContext(null);
  * @param {{ children: React.ReactNode }} props
  */
 export function ThemeProvider({ children }) {
-  // Initialise from localStorage so theme is correct on first paint
   const [isDarkMode, setIsDarkMode] = useState(() => {
     try {
-      const saved = localStorage.getItem("startup-crm-theme");
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
       return saved === "dark";
     } catch {
       return false;
     }
   });
 
-  // Keep document class and localStorage in sync whenever isDarkMode changes
   useEffect(() => {
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add("dark");
-      localStorage.setItem("startup-crm-theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("startup-crm-theme", "light");
-    }
+    applyThemePreference(isDarkMode);
   }, [isDarkMode]);
 
-  /** Toggles between dark and light mode. */
-  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+  const toggleTheme = useCallback(() => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      applyThemePreference(next);
+      return next;
+    });
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>

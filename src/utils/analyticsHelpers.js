@@ -1,302 +1,285 @@
-export const calculateStatusDistribution = (leads) => {
-  const distribution = {
-    New: 0,
-    Contacted: 0,
-    'Meeting Scheduled': 0,
-    'Proposal Sent': 0,
-    Won: 0,
-    Lost: 0,
-  };
+export const PIPELINE_STAGES = ['New', 'Contacted', 'Meeting Scheduled', 'Proposal Sent', 'Won'];
 
-  leads.forEach(lead => {
-    if (distribution.hasOwnProperty(lead.status)) {
-      distribution[lead.status]++;
-    }
-  });
+export const STATUS_OPTIONS = [...PIPELINE_STAGES, 'Lost'];
 
-  return Object.entries(distribution)
-    .map(([name, value]) => ({ name, value }))
-    .filter(item => item.value > 0);
+export const SOURCE_OPTIONS = ['Website', 'Referral', 'LinkedIn', 'Cold Call', 'Email Campaign', 'Other'];
+
+const STAGE_PROBABILITY = {
+  New: 0.1,
+  Contacted: 0.25,
+  'Meeting Scheduled': 0.45,
+  'Proposal Sent': 0.7,
+  Won: 1,
+  Lost: 0,
 };
 
-export const calculateMonthlyLeads = (leads, days = 30) => {
-  const now = new Date();
-  const pastDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-  const monthlyData = {};
-  leads.forEach(lead => {
-    const leadDate = new Date(lead.createdAt);
-    if (leadDate >= pastDate) {
-      const monthKey = leadDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
-    }
-  });
+const toDate = (value) => {
+  const date = value ? new Date(value) : null;
+  return date && Number.isFinite(date.getTime()) ? date : null;
+};
 
-  const sortedDates = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const key = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    sortedDates.push({ date: key, leads: monthlyData[key] || 0 });
+const normalizeLeads = (leads) => (Array.isArray(leads) ? leads.filter(Boolean) : []);
+
+const stableNumberFromLead = (lead, min = 5000, max = 75000) => {
+  const seed = `${lead?.id || ''}${lead?.email || ''}${lead?.name || ''}${lead?.company || ''}`;
+  const hash = [...seed].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return min + (hash % (max - min + 1));
+};
+
+export const getLeadValue = (lead) => {
+  const rawValue = Number(lead?.value ?? lead?.dealValue ?? lead?.amount ?? lead?.revenue);
+  return Number.isFinite(rawValue) && rawValue > 0 ? rawValue : stableNumberFromLead(lead);
+};
+
+const getWonDate = (lead) => toDate(lead?.wonAt || lead?.closedAt || lead?.updatedAt || lead?.createdAt);
+
+const getOwnerName = (lead) => (
+  lead?.owner
+  || lead?.assignedTo
+  || lead?.salesRep
+  || lead?.createdBy
+  || lead?.company
+  || 'Unassigned'
+);
+
+const getRangeStart = (range, now = new Date()) => {
+  if (range === 'year' || range === '365') {
+    return new Date(now.getFullYear(), 0, 1);
   }
 
-  return sortedDates;
+  const days = Number(range) || 30;
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - (days - 1));
+  return start;
 };
 
-export const calculateConversionByMonth = (leads, days = 30) => {
-  const now = new Date();
-  const pastDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-
-  const monthlyStats = {};
-  leads.forEach(lead => {
-    const leadDate = new Date(lead.createdAt);
-    if (leadDate >= pastDate) {
-      const monthKey = leadDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      if (!monthlyStats[monthKey]) {
-        monthlyStats[monthKey] = { total: 0, won: 0 };
-      }
-      monthlyStats[monthKey].total++;
-      if (lead.status === 'Won') {
-        monthlyStats[monthKey].won++;
-      }
-    }
-  });
-
-  const sortedDates = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const key = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const stats = monthlyStats[key];
-    const rate = stats ? Math.round((stats.won / stats.total) * 100) : 0;
-    sortedDates.push({ date: key, rate });
+const getPeriodDays = (range, now = new Date()) => {
+  if (range === 'year' || range === '365') {
+    return Math.max(1, Math.ceil((now - getRangeStart(range, now)) / MS_PER_DAY) + 1);
   }
 
-  return sortedDates;
+  return Number(range) || 30;
 };
 
-export const calculateRevenueByMonth = (leads, days = 30) => {
-  const now = new Date();
-  const pastDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+const getMonthKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-  const monthlyRevenue = {};
-  leads.forEach(lead => {
+const getMonthLabel = (date) => date.toLocaleDateString('en-US', { month: 'short' });
+
+const createMonthBuckets = (leads, range) => {
+  const now = new Date();
+  const start = getRangeStart(range, now);
+  const buckets = new Map();
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  while (cursor <= end) {
+    buckets.set(getMonthKey(cursor), {
+      date: getMonthLabel(cursor),
+      sortDate: new Date(cursor),
+      leads: 0,
+      won: 0,
+      revenue: 0,
+    });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  normalizeLeads(leads).forEach((lead) => {
+    const createdAt = toDate(lead?.createdAt);
+    if (!createdAt || createdAt < start || createdAt > now) return;
+
+    const key = getMonthKey(createdAt);
+    const bucket = buckets.get(key);
+    if (!bucket) return;
+
+    bucket.leads += 1;
     if (lead.status === 'Won') {
-      const leadDate = new Date(lead.createdAt);
-      if (leadDate >= pastDate) {
-        const monthKey = leadDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const revenue = Math.floor(Math.random() * 50000) + 10000;
-        monthlyRevenue[monthKey] = (monthlyRevenue[monthKey] || 0) + revenue;
-      }
+      bucket.won += 1;
+      bucket.revenue += getLeadValue(lead);
     }
   });
 
-  const sortedDates = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const key = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    sortedDates.push({ date: key, revenue: monthlyRevenue[key] || 0 });
-  }
-
-  return sortedDates;
+  return [...buckets.values()].sort((a, b) => a.sortDate - b.sortDate);
 };
 
-export const calculateLeadSources = (leads) => {
-  const sources = {
-    Website: 0,
-    Referral: 0,
-    LinkedIn: 0,
-    'Cold Call': 0,
-    'Email Campaign': 0,
-    Other: 0,
-  };
+export const filterLeadsByDateRange = (leads, range = '30') => {
+  const safeLeads = normalizeLeads(leads);
+  const start = getRangeStart(range);
 
-  leads.forEach(lead => {
-    if (sources.hasOwnProperty(lead.source)) {
-      sources[lead.source]++;
-    }
+  return safeLeads.filter((lead) => {
+    const createdAt = toDate(lead?.createdAt);
+    return createdAt ? createdAt >= start : true;
   });
-
-  return Object.entries(sources)
-    .map(([name, value]) => ({ name, value }))
-    .filter(item => item.value > 0)
-    .sort((a, b) => b.value - a.value);
 };
 
-export const calculateFunnelData = (leads) => {
-  const funnelStages = [
-    { name: 'New', value: 0 },
-    { name: 'Contacted', value: 0 },
-    { name: 'Meeting Scheduled', value: 0 },
-    { name: 'Proposal Sent', value: 0 },
-    { name: 'Won', value: 0 },
-  ];
+export const calculateTotalLeads = (leads) => normalizeLeads(leads).length;
 
-  leads.forEach(lead => {
-    const stage = funnelStages.find(s => s.name === lead.status);
-    if (stage) stage.value++;
-  });
+export const calculateWonLeads = (leads) => normalizeLeads(leads).filter((lead) => lead.status === 'Won').length;
 
-  return funnelStages.filter(item => item.value > 0);
-};
-
-export const calculateTotalLeads = (leads) => leads.length;
-
-export const calculateWonLeads = (leads) => leads.filter(lead => lead.status === 'Won').length;
-
-export const calculateLostLeads = (leads) => leads.filter(lead => lead.status === 'Lost').length;
+export const calculateLostLeads = (leads) => normalizeLeads(leads).filter((lead) => lead.status === 'Lost').length;
 
 export const calculateConversionRate = (leads) => {
-  if (leads.length === 0) return 0;
-  const won = calculateWonLeads(leads);
-  return Math.round((won / leads.length) * 100);
+  const total = calculateTotalLeads(leads);
+  return total ? Number(((calculateWonLeads(leads) / total) * 100).toFixed(1)) : 0;
 };
 
 export const calculateLostRate = (leads) => {
-  if (leads.length === 0) return 0;
-  const lost = calculateLostLeads(leads);
-  return Math.round((lost / leads.length) * 100);
+  const total = calculateTotalLeads(leads);
+  return total ? Number(((calculateLostLeads(leads) / total) * 100).toFixed(1)) : 0;
 };
 
-export const calculateWonRevenue = (leads) => {
-  const wonLeads = leads.filter(lead => lead.status === 'Won');
-  const totalRevenue = wonLeads.reduce((sum) => {
-    const revenue = Math.floor(Math.random() * 50000) + 10000;
-    return sum + revenue;
-  }, 0);
-  return totalRevenue;
-};
+export const calculateWonRevenue = (leads) => (
+  normalizeLeads(leads)
+    .filter((lead) => lead.status === 'Won')
+    .reduce((sum, lead) => sum + getLeadValue(lead), 0)
+);
 
-export const calculatePipelineValue = (leads) => {
-  const pipelineLeads = leads.filter(
-    lead => !['Won', 'Lost'].includes(lead.status)
-  );
-  const value = pipelineLeads.reduce((sum) => {
-    const val = Math.floor(Math.random() * 75000) + 15000;
-    return sum + val;
-  }, 0);
-  return value;
-};
+export const calculatePipelineValue = (leads) => (
+  normalizeLeads(leads)
+    .filter((lead) => !['Won', 'Lost'].includes(lead.status))
+    .reduce((sum, lead) => sum + getLeadValue(lead) * (STAGE_PROBABILITY[lead.status] || 0.2), 0)
+);
 
 export const calculateAverageSalesCycle = (leads) => {
-  const wonLeads = leads.filter(lead => lead.status === 'Won');
-  if (wonLeads.length === 0) return 0;
+  const wonLeads = normalizeLeads(leads).filter((lead) => lead.status === 'Won');
+  if (!wonLeads.length) return 0;
 
   const totalDays = wonLeads.reduce((sum, lead) => {
-    const createdDate = new Date(lead.createdAt);
-    const daysDiff = Math.floor((new Date() - createdDate) / (1000 * 60 * 60 * 24));
-    return sum + daysDiff;
+    const createdAt = toDate(lead.createdAt);
+    const wonAt = getWonDate(lead);
+    if (!createdAt || !wonAt) return sum;
+    return sum + Math.max(1, Math.round((wonAt - createdAt) / MS_PER_DAY));
   }, 0);
 
   return Math.round(totalDays / wonLeads.length);
 };
 
-export const calculateSalesVelocity = (leads, days = 30) => {
-  const now = new Date();
-  const pastDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-
-  const recentWon = leads.filter(lead => {
-    const leadDate = new Date(lead.createdAt);
-    return lead.status === 'Won' && leadDate >= pastDate;
-  }).length;
-
-  return Math.round(recentWon / (days / 7));
-};
-
-export const calculateForecastRevenue = (leads, days = 90) => {
-  const now = new Date();
-  const pastDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-
-  const recentLeads = leads.filter(lead => {
-    const leadDate = new Date(lead.createdAt);
-    return leadDate >= pastDate;
+export const calculateStatusDistribution = (leads) => {
+  const counts = STATUS_OPTIONS.reduce((acc, status) => ({ ...acc, [status]: 0 }), {});
+  normalizeLeads(leads).forEach((lead) => {
+    counts[lead.status || 'New'] = (counts[lead.status || 'New'] || 0) + 1;
   });
 
-  const avgRevenue = calculateWonRevenue(leads) / Math.max(calculateWonLeads(leads), 1);
-  const forecast = Math.round(recentLeads.length * (calculateConversionRate(leads) / 100) * avgRevenue);
+  return Object.entries(counts)
+    .map(([name, value]) => ({ name, value }))
+    .filter((item) => item.value > 0);
+};
 
-  return forecast;
+export const calculateFunnelData = (leads) => {
+  const counts = PIPELINE_STAGES.reduce((acc, stage) => ({ ...acc, [stage]: 0 }), {});
+  normalizeLeads(leads).forEach((lead) => {
+    if (Object.hasOwn(counts, lead.status)) counts[lead.status] += 1;
+  });
+
+  return PIPELINE_STAGES.map((name) => ({
+    name: name.replace(' Scheduled', '').replace(' Sent', ''),
+    stage: name,
+    value: counts[name],
+  }));
+};
+
+export const calculateMonthlyLeads = (leads, range = '30') => (
+  createMonthBuckets(leads, range).map(({ date, leads: leadCount }) => ({ date, leads: leadCount }))
+);
+
+export const calculateConversionByMonth = (leads, range = '30') => (
+  createMonthBuckets(leads, range).map(({ date, leads: total, won }) => ({
+    date,
+    rate: total ? Number(((won / total) * 100).toFixed(1)) : 0,
+  }))
+);
+
+export const calculateRevenueByMonth = (leads, range = '30') => (
+  createMonthBuckets(leads, range).map(({ date, revenue }) => ({ date, revenue }))
+);
+
+export const calculateLeadSources = (leads) => {
+  const counts = SOURCE_OPTIONS.reduce((acc, source) => ({ ...acc, [source]: 0 }), {});
+  normalizeLeads(leads).forEach((lead) => {
+    const source = lead.source && Object.hasOwn(counts, lead.source) ? lead.source : 'Other';
+    counts[source] += 1;
+  });
+
+  return Object.entries(counts)
+    .map(([name, value]) => ({ name, value }))
+    .filter((item) => item.value > 0)
+    .sort((a, b) => b.value - a.value);
+};
+
+export const calculateSalesVelocity = (leads) => {
+  const safeLeads = normalizeLeads(leads);
+  const opportunities = safeLeads.filter((lead) => !['Lost'].includes(lead.status)).length;
+  const winRate = calculateConversionRate(safeLeads) / 100;
+  const averageDealValue = calculateWonLeads(safeLeads)
+    ? calculateWonRevenue(safeLeads) / calculateWonLeads(safeLeads)
+    : safeLeads.reduce((sum, lead) => sum + getLeadValue(lead), 0) / Math.max(safeLeads.length, 1);
+  const salesCycle = Math.max(calculateAverageSalesCycle(safeLeads), 1);
+
+  return Math.round((opportunities * averageDealValue * winRate) / salesCycle);
+};
+
+export const calculateForecastRevenue = (leads, range = '30') => {
+  const safeLeads = normalizeLeads(leads);
+  const pipelineWeighted = calculatePipelineValue(safeLeads);
+  const days = getPeriodDays(range);
+  const wonRevenue = calculateWonRevenue(safeLeads);
+  const runRate = wonRevenue ? (wonRevenue / days) * 30 : 0;
+
+  return Math.round(pipelineWeighted + runRate);
 };
 
 export const calculateTopPerformers = (leads) => {
-  const performers = {};
+  const performers = new Map();
 
-  leads.filter(lead => lead.status === 'Won').forEach(lead => {
-    const name = lead.name.split(' ')[0];
-    if (!performers[name]) {
-      performers[name] = { name, deals: 0, revenue: 0 };
-    }
-    performers[name].deals++;
-    performers[name].revenue += Math.floor(Math.random() * 50000) + 10000;
-  });
+  normalizeLeads(leads)
+    .filter((lead) => lead.status === 'Won')
+    .forEach((lead) => {
+      const name = getOwnerName(lead);
+      const current = performers.get(name) || { name, deals: 0, revenue: 0 };
+      current.deals += 1;
+      current.revenue += getLeadValue(lead);
+      performers.set(name, current);
+    });
 
-  return Object.values(performers)
+  return [...performers.values()]
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 10);
 };
 
 export const calculateActivityHeatmap = (leads) => {
-  const heatmapData = {};
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  days.forEach(day => {
-    heatmapData[day] = Array(24).fill(0);
-  });
-
-  leads.forEach(lead => {
-    const date = new Date(lead.createdAt);
-    const dayName = days[date.getDay()];
-    const hour = date.getHours();
-    heatmapData[dayName][hour]++;
-  });
-
-  return Object.entries(heatmapData).map(([day, hours]) => ({
+  const heatmap = days.map((day) => ({
     day,
-    hours: hours.map((count, hour) => ({ hour, count })),
+    hours: Array.from({ length: 24 }, (_, hour) => ({ hour, count: 0 })),
   }));
+
+  normalizeLeads(leads).forEach((lead) => {
+    const createdAt = toDate(lead.createdAt);
+    if (!createdAt) return;
+    heatmap[createdAt.getDay()].hours[createdAt.getHours()].count += 1;
+  });
+
+  return heatmap;
 };
 
-export const filterLeadsByDateRange = (leads, range) => {
-  const now = new Date();
-  let pastDate;
-
-  switch (range) {
-    case '7':
-      pastDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      break;
-    case '30':
-      pastDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      break;
-    case '90':
-      pastDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-      break;
-    case '365':
-      pastDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-      break;
-    default:
-      return leads;
-  }
-
-  return leads.filter(lead => new Date(lead.createdAt) >= pastDate);
-};
-
-export const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (value = 0) => (
+  new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value);
-};
+  }).format(Number.isFinite(Number(value)) ? Number(value) : 0)
+);
 
-export const formatNumber = (value) => {
-  return new Intl.NumberFormat('en-US').format(value);
-};
+export const formatNumber = (value = 0) => (
+  new Intl.NumberFormat('en-US').format(Number.isFinite(Number(value)) ? Number(value) : 0)
+);
 
-export const formatCompactNumber = (value) => {
-  if (value >= 1000000) {
-    return (value / 1000000).toFixed(1) + 'M';
-  }
-  if (value >= 1000) {
-    return (value / 1000).toFixed(1) + 'K';
-  }
-  return value.toString();
-};
+export const formatCompactNumber = (value = 0) => (
+  new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(Number.isFinite(Number(value)) ? Number(value) : 0)
+);

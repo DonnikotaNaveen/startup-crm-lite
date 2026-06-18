@@ -8,10 +8,8 @@ import {
   Settings,
   X,
   Activity,
-  Sun,
-  Moon,
 } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import DarkModeToggle from "../common/DarkModeToggle";
 
 /**
  * @typedef {Object} SidebarProps
@@ -29,7 +27,6 @@ import { useTheme } from "../../context/ThemeContext";
  */
 export default function Sidebar({ isOpen, setIsOpen }) {
   const sidebarRef = useRef(null);
-  const { isDarkMode, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -127,31 +124,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Theme Toggle */}
         <div className="px-4 pb-2">
-          <button
-            onClick={toggleTheme}
-            aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-xl
-              border border-slate-200/80 dark:border-gray-700
-              bg-slate-50 dark:bg-gray-800
-              hover:bg-slate-100 dark:hover:bg-gray-700
-              text-slate-700 dark:text-gray-200
-              transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer group"
-          >
-            <span className="text-sm font-semibold">
-              {isDarkMode ? "Light Mode" : "Dark Mode"}
-            </span>
-            <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200
-              ${isDarkMode
-                ? "bg-amber-100 dark:bg-amber-900/40 text-amber-500"
-                : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-500"
-              } group-hover:scale-110`}
-            >
-              {isDarkMode
-                ? <Sun className="h-4.5 w-4.5" />
-                : <Moon className="h-4.5 w-4.5" />
-              }
-            </div>
-          </button>
+          <DarkModeToggle />
         </div>
 
         {/* User profile bottom widget */}

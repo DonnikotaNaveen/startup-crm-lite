@@ -17,12 +17,12 @@ export default function EmptyState({ totalLeads = 0, onClearFilters }) {
   const isFiltered = totalLeads > 0;
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-6 bg-white border border-slate-200/80 rounded-2xl shadow-xs text-center transition-all duration-300 animate-fade-in">
+    <div className="flex flex-col items-center justify-center py-16 px-6 bg-white border border-slate-200/80 rounded-2xl shadow-xs text-center transition-all duration-300 animate-fade-in dark:border-gray-700 dark:bg-gray-800">
       {/* Icon */}
       <div
         className={`
           flex items-center justify-center h-16 w-16 rounded-2xl mb-5
-          ${isFiltered ? "bg-amber-50 text-amber-500" : "bg-blue-50 text-blue-500"}
+          ${isFiltered ? "bg-amber-50 text-amber-500 dark:bg-amber-950/40 dark:text-amber-400" : "bg-blue-50 text-blue-500 dark:bg-blue-950/40 dark:text-blue-400"}
         `}
       >
         {isFiltered ? (
@@ -33,12 +33,12 @@ export default function EmptyState({ totalLeads = 0, onClearFilters }) {
       </div>
 
       {/* Heading */}
-      <h3 className="text-base font-bold text-slate-800 mb-1.5">
+      <h3 className="text-base font-bold text-slate-800 mb-1.5 dark:text-white">
         {isFiltered ? "No leads found" : "No leads yet"}
       </h3>
 
       {/* Supporting message */}
-      <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
+      <p className="text-sm text-slate-500 max-w-xs leading-relaxed dark:text-gray-400">
         {isFiltered
           ? "Your search or filter didn't match any prospects. Try adjusting your criteria or clear the filters to see all leads."
           : "You haven't added any leads yet. Click \"Add Lead\" to register your first prospect and start building your pipeline."}

@@ -2,26 +2,34 @@ import React from 'react';
 import { Target } from 'lucide-react';
 import { formatCurrency } from '../../utils/analyticsHelpers';
 
-export const ForecastCard = React.memo(({ forecastRevenue }) => {
+export const ForecastCard = React.memo(({ forecastRevenue = 0, pipelineValue = 0, wonRevenue = 0 }) => {
+  const targetBase = Math.max(forecastRevenue, pipelineValue + wonRevenue, 1);
+  const forecastPercent = Math.min(100, Math.round((forecastRevenue / targetBase) * 100));
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-      <div className="flex items-start justify-between mb-4">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-slate-600 mb-2">Revenue Forecast</p>
-          <p className="text-3xl font-bold text-slate-900">{formatCurrency(forecastRevenue)}</p>
-          <p className="text-xs text-slate-500 mt-2">projected for next period</p>
+          <p className="text-sm font-bold text-slate-500 dark:text-gray-400">Revenue Forecast</p>
+          <p className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            {formatCurrency(forecastRevenue)}
+          </p>
+          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-gray-400">projected next 30 days</p>
         </div>
-        <div className="p-3 bg-amber-50 rounded-lg">
-          <Target className="w-6 h-6 text-amber-500" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+          <Target className="h-6 w-6" />
         </div>
       </div>
-      <div className="w-full bg-slate-100 rounded-full h-2">
-        <div
-          className="bg-amber-500 h-2 rounded-full"
-          style={{ width: '65%' }}
-        />
+
+      <div className="mt-6">
+        <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase text-slate-400 dark:text-gray-500">
+          <span>Forecast confidence</span>
+          <span>{forecastPercent}%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-gray-900">
+          <div className="h-full rounded-full bg-amber-500" style={{ width: `${forecastPercent}%` }} />
+        </div>
       </div>
-      <p className="text-xs text-slate-500 mt-2">Based on current conversion rate and pipeline</p>
     </div>
   );
 });

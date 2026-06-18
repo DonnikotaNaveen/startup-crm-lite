@@ -1,57 +1,55 @@
 import React from 'react';
-import { TrendingUp } from 'lucide-react';
-import { formatCurrency, formatNumber, formatCompactNumber } from '../../utils/analyticsHelpers';
+import { BadgeDollarSign, CircleDollarSign, Clock3, Percent, TrendingDown, Users } from 'lucide-react';
+import { formatCurrency, formatNumber } from '../../utils/analyticsHelpers';
 
-const StatsCard = React.memo(({ label, value, format = 'number', trend, icon: Icon }) => {
-  const formattedValue = React.useMemo(() => {
-    if (format === 'currency') return formatCurrency(value);
-    if (format === 'compact') return formatCompactNumber(value);
-    if (format === 'percent') return `${value}%`;
-    return formatNumber(value);
-  }, [value, format]);
+const KPI_CARDS = [
+  { key: 'totalLeads', label: 'Total Leads', icon: Users, tone: 'blue', format: 'number' },
+  { key: 'conversionRate', label: 'Conversion Rate', icon: Percent, tone: 'emerald', format: 'percent' },
+  { key: 'pipelineValue', label: 'Pipeline Value', icon: BadgeDollarSign, tone: 'cyan', format: 'currency' },
+  { key: 'wonRevenue', label: 'Won Revenue', icon: CircleDollarSign, tone: 'green', format: 'currency' },
+  { key: 'averageSalesCycle', label: 'Avg Sales Cycle', icon: Clock3, tone: 'amber', format: 'days' },
+  { key: 'lostRate', label: 'Lost Rate', icon: TrendingDown, tone: 'rose', format: 'percent' },
+];
 
-  return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <p className="text-sm font-medium text-slate-600 mb-2">{label}</p>
-          <p className="text-3xl font-bold text-slate-900">{formattedValue}</p>
+const TONE_CLASSES = {
+  blue: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
+  emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
+  cyan: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-400',
+  green: 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400',
+  amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
+  rose: 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400',
+};
+
+const formatValue = (value, format) => {
+  if (format === 'currency') return formatCurrency(value);
+  if (format === 'percent') return `${formatNumber(value)}%`;
+  if (format === 'days') return `${formatNumber(value)} days`;
+  return formatNumber(value);
+};
+
+const StatsCard = React.memo(({ label, value, format, icon: Icon, tone }) => (
+  <div className="flex min-h-[160px] min-w-[170px] rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex w-full flex-col justify-between">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-bold text-slate-500 dark:text-gray-400">{label}</p>
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${TONE_CLASSES[tone]}`}>
+          <Icon className="h-5 w-5" />
         </div>
-        {Icon && (
-          <div className="p-3 bg-blue-50 rounded-lg">
-            <Icon className="w-6 h-6 text-blue-500" />
-          </div>
-        )}
       </div>
-      {trend && (
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-green-500" />
-          <span className="text-sm text-green-600">{trend}</span>
-        </div>
-      )}
+      <p className="text-center text-xl font-bold tracking-tight text-slate-900 whitespace-nowrap lg:text-2xl dark:text-white">
+        {formatValue(value, format)}
+      </p>
     </div>
-  );
-});
+  </div>
+));
 
-export const StatsCards = React.memo(({
-  totalLeads,
-  conversionRate,
-  pipelineValue,
-  wonRevenue,
-  averageSalesCycle,
-  lostRate,
-}) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
-      <StatsCard label="Total Leads" value={totalLeads} format="number" />
-      <StatsCard label="Conversion Rate" value={conversionRate} format="percent" />
-      <StatsCard label="Pipeline Value" value={pipelineValue} format="currency" />
-      <StatsCard label="Won Revenue" value={wonRevenue} format="currency" />
-      <StatsCard label="Avg Sales Cycle" value={averageSalesCycle} format="number" />
-      <StatsCard label="Lost Rate" value={lostRate} format="percent" />
-    </div>
-  );
-});
+export const StatsCards = React.memo((metrics) => (
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+    {KPI_CARDS.map((card) => (
+      <StatsCard key={card.key} {...card} value={metrics[card.key]} />
+    ))}
+  </div>
+));
 
 StatsCard.displayName = 'StatsCard';
 StatsCards.displayName = 'StatsCards';

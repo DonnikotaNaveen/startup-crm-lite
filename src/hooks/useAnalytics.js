@@ -59,18 +59,18 @@ export const useAnalytics = (dateRange = '30') => {
       wonRevenue: calculateWonRevenue(filteredLeads),
       pipelineValue: calculatePipelineValue(filteredLeads),
       averageSalesCycle: calculateAverageSalesCycle(filteredLeads),
-      salesVelocity: calculateSalesVelocity(filteredLeads, parseInt(dateRange)),
-      forecastRevenue: calculateForecastRevenue(filteredLeads, parseInt(dateRange)),
+      salesVelocity: calculateSalesVelocity(filteredLeads, dateRange),
+      forecastRevenue: calculateForecastRevenue(filteredLeads, dateRange),
       statusDistribution: calculateStatusDistribution(filteredLeads),
-      monthlyLeads: calculateMonthlyLeads(filteredLeads, parseInt(dateRange)),
-      conversionByMonth: calculateConversionByMonth(filteredLeads, parseInt(dateRange)),
-      revenueByMonth: calculateRevenueByMonth(filteredLeads, parseInt(dateRange)),
+      monthlyLeads: calculateMonthlyLeads(filteredLeads, dateRange),
+      conversionByMonth: calculateConversionByMonth(filteredLeads, dateRange),
+      revenueByMonth: calculateRevenueByMonth(filteredLeads, dateRange),
       leadSources: calculateLeadSources(filteredLeads),
       funnelData: calculateFunnelData(filteredLeads),
       topPerformers: calculateTopPerformers(filteredLeads),
       activityHeatmap: calculateActivityHeatmap(filteredLeads),
     };
-  }, [filteredLeads]);
+  }, [filteredLeads, dateRange]);
 
   return analytics;
 };
