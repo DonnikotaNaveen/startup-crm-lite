@@ -11,6 +11,8 @@ import {
   Activity,
 } from "lucide-react";
 import DarkModeToggle from "../common/DarkModeToggle";
+import Avatar from "../common/Avatar";
+import { useWorkspace } from "../../context/WorkspaceContext";
 
 /**
  * @typedef {Object} SidebarProps
@@ -28,6 +30,7 @@ import DarkModeToggle from "../common/DarkModeToggle";
  */
 export default function Sidebar({ isOpen, setIsOpen }) {
   const sidebarRef = useRef(null);
+  const { profile } = useWorkspace();
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -136,15 +139,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         {/* User profile bottom widget */}
         <div className="border-t border-slate-100 dark:border-gray-700 p-4">
           <div className="flex items-center gap-3 px-2 py-1.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full
-              bg-slate-100 dark:bg-gray-700
-              border border-slate-200 dark:border-gray-600
-              text-slate-700 dark:text-gray-200 font-bold text-xs">
-              DN
-            </div>
+            <Avatar name={profile.name} className="h-9 w-9 text-xs" />
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-slate-900 dark:text-gray-100 truncate">Donnikota Naveen</span>
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-gray-500 truncate">admin@crmlite.io</span>
+              <span className="text-xs font-bold text-slate-900 dark:text-gray-100 truncate">{profile.name}</span>
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-gray-500 truncate">{profile.email}</span>
             </div>
           </div>
         </div>

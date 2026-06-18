@@ -1,9 +1,10 @@
+import React from "react";
+
 /**
  * StatusBadge renders a color-coded pipeline status pill with dark mode support.
- *
- * @param {{ status: string }} props
+ * Memoized to prevent re-renders when parent lists update.
  */
-export default function StatusBadge({ status }) {
+const StatusBadge = React.memo(({ status }) => {
   const styles = {
     New:                "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 border-slate-200/80 dark:border-gray-600",
     Contacted:          "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border-amber-200/80 dark:border-amber-900/50",
@@ -20,4 +21,8 @@ export default function StatusBadge({ status }) {
       {status}
     </span>
   );
-}
+});
+
+StatusBadge.displayName = "StatusBadge";
+
+export default StatusBadge;

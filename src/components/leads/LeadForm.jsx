@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { STATUS_OPTIONS, SOURCE_OPTIONS } from "../../constants";
 
 /**
  * @typedef {Object} LeadData
@@ -19,8 +20,7 @@ import { useState } from "react";
  * @property {function():void} onCancel - Handler triggered when user cancels editing.
  */
 
-const STATUS_OPTIONS = ["New", "Contacted", "Meeting Scheduled", "Proposal Sent", "Won", "Lost"];
-const SOURCE_OPTIONS = ["Website", "Referral", "LinkedIn", "Cold Call", "Email Campaign", "Other"];
+
 
 /**
  * LeadForm component handles the CRUD form interface for creating or editing leads.

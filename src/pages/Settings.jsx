@@ -1,20 +1,18 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Settings as SettingsIcon, Bell, Shield, User, Save } from "lucide-react";
+import { useWorkspace } from "../context/WorkspaceContext";
 
 export default function Settings() {
-  const [profile, setProfile] = useState({
-    name: "Donnikota Naveen",
-    email: "admin@crmlite.io",
-    role: "Senior Administrator",
-  });
+  const {
+    profile: contextProfile,
+    setProfile: setContextProfile,
+    preferences: contextPreferences,
+    setPreferences: setContextPreferences,
+  } = useWorkspace();
 
-  const [preferences, setPreferences] = useState({
-    emailNotifications: true,
-    weeklyDigest: false,
-    mfaEnabled: true,
-    pipelineAlerts: true,
-  });
+  const [profile, setProfile] = useState(contextProfile);
+  const [preferences, setPreferences] = useState(contextPreferences);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +25,8 @@ export default function Settings() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    setContextProfile(profile);
+    setContextPreferences(preferences);
     toast.success("Workspace settings updated successfully!", {
       style: {
         borderRadius: "12px",

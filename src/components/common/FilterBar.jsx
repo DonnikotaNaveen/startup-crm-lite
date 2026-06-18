@@ -1,17 +1,32 @@
+import { useMemo } from "react";
+
+const STATUSES = ["All", "New", "Contacted", "Meeting Scheduled", "Proposal Sent", "Won", "Lost"];
+
 /**
  * FilterBar renders status filter buttons with dark mode support.
+ *
+ * @param {{ activeFilter: string, onFilterChange: Function, leads: Array }} props
+ * @returns {JSX.Element}
  */
 export default function FilterBar({ activeFilter, onFilterChange, leads = [] }) {
-  const statuses = ["All", "New", "Contacted", "Meeting Scheduled", "Proposal Sent", "Won", "Lost"];
-
-  const getCount = (status) =>
-    status === "All" ? leads.length : leads.filter((l) => l.status === status).length;
+  const counts = useMemo(() => {
+    const map = { All: leads.length };
+    STATUSES.forEach((s) => {
+      if (s !== "All") map[s] = 0;
+    });
+    leads.forEach((lead) => {
+      if (lead && lead.status && map[lead.status] !== undefined) {
+        map[lead.status]++;
+      }
+    });
+    return map;
+  }, [leads]);
 
   return (
     <div role="group" aria-label="Filter leads by status" className="flex flex-wrap gap-2">
-      {statuses.map((status) => {
+      {STATUSES.map((status) => {
         const isActive = activeFilter === status;
-        const count = getCount(status);
+        const count = counts[status] ?? 0;
 
         return (
           <button

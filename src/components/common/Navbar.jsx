@@ -1,12 +1,15 @@
 import { NavLink } from "react-router-dom"; // Import NavLink for standard active-state aware navigation
 import { LayoutDashboard, Users, BarChart3, Activity } from "lucide-react"; // Import icons from Lucide for clear visual identifiers
 import DarkModeToggle from "./DarkModeToggle";
+import Avatar from "./Avatar";
+import { useWorkspace } from "../../context/WorkspaceContext";
 
 /**
  * Navbar component renders a sticky glassmorphic navigation header
  * that handles page transitions and highlights the active route.
  */
 export default function Navbar() {
+  const { profile } = useWorkspace();
   // Navigation items configuration for easy extensibility and clean rendering
   const navItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -67,9 +70,7 @@ export default function Navbar() {
             <DarkModeToggle compact />
 
             {/* User Avatar Circle */}
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-bold text-sm shadow-inner cursor-pointer hover:bg-slate-200 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
-              DN
-            </div>
+            <Avatar name={profile.name} className="h-9 w-9 cursor-pointer hover:opacity-90 transition-opacity" />
           </div>
 
         </div>

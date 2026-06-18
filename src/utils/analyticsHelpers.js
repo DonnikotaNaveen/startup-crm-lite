@@ -1,8 +1,6 @@
-export const PIPELINE_STAGES = ['New', 'Contacted', 'Meeting Scheduled', 'Proposal Sent', 'Won'];
+import { PIPELINE_STAGES, STATUS_OPTIONS, SOURCE_OPTIONS } from '../constants';
 
-export const STATUS_OPTIONS = [...PIPELINE_STAGES, 'Lost'];
-
-export const SOURCE_OPTIONS = ['Website', 'Referral', 'LinkedIn', 'Cold Call', 'Email Campaign', 'Other'];
+export { PIPELINE_STAGES, STATUS_OPTIONS, SOURCE_OPTIONS };
 
 const STAGE_PROBABILITY = {
   New: 0.1,

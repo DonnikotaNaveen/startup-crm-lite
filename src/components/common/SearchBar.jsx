@@ -12,7 +12,12 @@ import { Search, X } from "lucide-react";
  * @param {string}   props.value     - Controlled value driven by parent.
  * @param {Function} props.onChange  - Called with the debounced string.
  */
-export default function SearchBar({ value, onChange }) {
+export default function SearchBar({
+  value,
+  onChange,
+  placeholder = "Search by name, company, or email...",
+  ariaLabel = "Search leads"
+}) {
   // Keep a local mirror so the input stays snappy while we debounce upward
   const [localValue, setLocalValue] = useState(value ?? "");
   const debounceRef = useRef(null);
@@ -49,8 +54,8 @@ export default function SearchBar({ value, onChange }) {
 
       <input
         type="text"
-        aria-label="Search leads"
-        placeholder="Search by name, company, or email..."
+        aria-label={ariaLabel}
+        placeholder={placeholder}
         value={displayedValue}
         onChange={handleChange}
         className="min-h-11 w-full pl-10 pr-11 py-2.5 bg-slate-50 focus:bg-white border border-slate-200/60 focus:border-blue-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-900 dark:focus:border-blue-500"

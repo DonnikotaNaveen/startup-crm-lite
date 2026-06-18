@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Plus, LayoutGrid, List, X } from "lucide-react";
 
@@ -27,10 +27,10 @@ export default function Leads() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setSelectedLead(null);
     setIsModalOpen(false);
-  };
+  }, []);
 
   // Accessibility: Close modal on Esc press
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function Leads() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isModalOpen]);
+  }, [isModalOpen, handleCloseModal]);
 
   /**
    * Derived filtered list — recomputed only when leads, searchQuery or
@@ -59,26 +59,26 @@ export default function Leads() {
   }, [leads, searchQuery, activeFilter]);
 
   /** Reset both search and filter to defaults. */
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setSearchQuery("");
     setActiveFilter("All");
-  };
+  }, []);
 
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = useCallback(() => {
     setSelectedLead(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleOpenEditModal = (lead) => {
+  const handleOpenEditModal = useCallback((lead) => {
     setSelectedLead(lead);
     setIsModalOpen(true);
-  };
+  }, []);
 
   /**
    * CREATE or UPDATE lead handler.
    * @param {Object} formData - Validated data from LeadForm.
    */
-  const handleFormSubmit = (formData) => {
+  const handleFormSubmit = useCallback((formData) => {
     if (selectedLead) {
       // UPDATE mode
       updateLead(selectedLead.id, formData);
@@ -105,13 +105,13 @@ export default function Leads() {
       });
     }
     handleCloseModal();
-  };
+  }, [selectedLead, updateLead, addLead, handleCloseModal]);
 
   /**
    * DELETE lead handler.
    * @param {number|string} id - Lead identifier to remove.
    */
-  const handleDeleteLead = (id) => {
+  const handleDeleteLead = useCallback((id) => {
     const leadToDelete = leads.find((l) => l.id === id);
     deleteLead(id);
     toast.error(`Lead "${leadToDelete?.name || ""}" removed from database.`, {
@@ -123,7 +123,7 @@ export default function Leads() {
         fontWeight: "600",
       },
     });
-  };
+  }, [leads, deleteLead]);
 
   return (
     <div className="w-full max-w-full overflow-hidden space-y-6 animate-fade-in">

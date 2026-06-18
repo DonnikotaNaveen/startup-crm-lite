@@ -1,11 +1,17 @@
+import React from "react";
 import { Edit3, Trash2, Mail, Calendar, Globe } from "lucide-react";
 import StatusBadge from "./StatusBadge";
+import Avatar from "../common/Avatar";
 import { formatCurrency } from "../../utils/analyticsHelpers";
 
 /**
  * LeadTable displays CRM leads in a responsive table with dark mode support.
+ * Memoized to prevent re-renders when other parent state elements change.
+ *
+ * @param {{ leads: Array, onEdit: Function, onDelete: Function }} props
+ * @returns {JSX.Element}
  */
-export default function LeadTable({ leads = [], onEdit, onDelete }) {
+const LeadTable = React.memo(({ leads = [], onEdit, onDelete }) => {
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
     try {
@@ -32,16 +38,11 @@ export default function LeadTable({ leads = [], onEdit, onDelete }) {
           <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
             {leads.length > 0 ? (
               leads.map((lead) => {
-                const initials = lead.name
-                  ? lead.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
-                  : "LD";
                 return (
                   <tr key={lead.id} className="hover:bg-slate-50/50 dark:hover:bg-gray-800/50 transition-colors group">
                     <td className="px-3 py-2 align-middle">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50 font-bold text-xs text-blue-600 dark:text-blue-400 border border-blue-100/30 dark:border-blue-900/40">
-                          {initials}
-                        </div>
+                        <Avatar name={lead.name} className="h-9 w-9 text-xs" />
                         <span className="min-w-0 break-words text-sm font-bold leading-tight text-slate-900 dark:text-gray-100">
                           {lead.name}
                         </span>
@@ -76,7 +77,7 @@ export default function LeadTable({ leads = [], onEdit, onDelete }) {
                       </span>
                     </td>
 
-                    <td className="hidden px-3 py-2 align-middle text-xs font-semibold text-slate-400 lg:table-cell dark:text-gray-500">
+                    <td className="hidden px-3 py-2 align-middle text-xs font-semibold text-slate-400 lg:table-cell dark:text-gray-400">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5 text-slate-400 dark:text-gray-500" />
                         <span>{formatDate(lead.createdAt)}</span>
@@ -116,4 +117,8 @@ export default function LeadTable({ leads = [], onEdit, onDelete }) {
       </div>
     </div>
   );
-}
+});
+
+LeadTable.displayName = "LeadTable";
+
+export default LeadTable;

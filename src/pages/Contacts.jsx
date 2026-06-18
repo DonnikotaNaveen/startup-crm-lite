@@ -1,29 +1,68 @@
-import { useMemo, useState } from "react";
-import { Search, Plus, Mail, Phone, Building } from "lucide-react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { Plus, Mail, Phone, Building, X } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
-const initialContacts = [
-  { id: 1, name: "Alice Vance", company: "CyberSpace Tech", email: "alice@cyberspace.io", phone: "+1 (555) 019-2834", status: "Active" },
-  { id: 2, name: "David Miller", company: "Alpha Systems", email: "david@alphasys.com", phone: "+1 (555) 014-9382", status: "Active" },
-  { id: 3, name: "Emma Watson", company: "DevLink Solutions", email: "emma@devlink.co", phone: "+1 (555) 017-4729", status: "Active" },
-  { id: 4, name: "Frank Wright", company: "Global Corp", email: "frank@globalcorp.net", phone: "+1 (555) 012-3849", status: "Inactive" },
-  { id: 5, name: "Grace Hopper", company: "Quantum Labs", email: "grace@quantum.edu", phone: "+1 (555) 015-8392", status: "Active" },
-  { id: 6, name: "Irene Adler", company: "Bohemia Media", email: "irene@bohemiamedia.cz", phone: "+1 (555) 019-2043", status: "Active" },
-  { id: 7, name: "John Smith", company: "TechNova", email: "john@technova.io", phone: "+1 (555) 011-3829", status: "Inactive" },
-];
+import { useContacts } from "../context/ContactContext";
+import ContactForm from "../components/contacts/ContactForm";
+import SearchBar from "../components/common/SearchBar";
+import Avatar from "../components/common/Avatar";
 
+/**
+ * Contacts directory view maps the people list and handles contact creation modal.
+ *
+ * @returns {JSX.Element}
+ */
 export default function Contacts() {
+  const { contacts, addContact } = useContacts();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenAddModal = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
+  const handleFormSubmit = useCallback((formData) => {
+    addContact(formData);
+    toast.success(`Contact "${formData.name}" has been added.`, {
+      style: {
+        borderRadius: "12px",
+        background: "#0F172A",
+        color: "#FFF",
+        fontSize: "14px",
+        fontWeight: "600",
+      },
+    });
+    setIsModalOpen(false);
+  }, [addContact]);
+
+  // Accessibility: Close modal on Esc press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isModalOpen) {
+        handleCloseModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen, handleCloseModal]);
 
   const filteredContacts = useMemo(() => {
-    return initialContacts.filter((c) =>
+    return contacts.filter((c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [contacts, searchTerm]);
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <Toaster position="top-right" />
+
+      {/* Header Panel */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
@@ -32,34 +71,35 @@ export default function Contacts() {
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1 dark:text-white">Contacts Directory</h1>
           <p className="text-sm text-slate-500 font-medium mt-1 dark:text-gray-400">Manage and sync client contacts across active startup accounts.</p>
         </div>
-        <button className="flex min-h-11 items-center justify-center gap-1.5 self-start rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-500/10 transition-all duration-200 hover:bg-blue-700 hover:shadow-lg sm:self-auto">
+        <button
+          onClick={handleOpenAddModal}
+          className="flex min-h-11 items-center justify-center gap-1.5 self-start rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-500/10 transition-all duration-200 hover:bg-blue-700 hover:shadow-lg sm:self-auto cursor-pointer"
+        >
           <Plus className="h-4 w-4" /> Add Contact
         </button>
       </div>
 
+      {/* Search Input using reusable SearchBar */}
       <div className="flex gap-4 bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs dark:border-gray-700 dark:bg-gray-800">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 dark:text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search contacts by name, company, or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="min-h-11 w-full pl-10 pr-4 py-2.5 bg-slate-50 focus:bg-white border border-slate-200/60 focus:border-blue-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-950"
-          />
-        </div>
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search contacts by name, company, or email..."
+          ariaLabel="Search contacts"
+        />
       </div>
 
+      {/* Table grid listing */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-800">
         <div className="w-full max-w-full overflow-hidden">
           <table className="w-full table-fixed border-collapse text-left text-sm">
             <thead>
               <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-400">
-                <th className="w-[34%] px-3 py-3">Contact Detail</th>
-                <th className="hidden w-[20%] px-3 py-3 lg:table-cell">Company</th>
-                <th className="w-[42%] px-3 py-3 lg:w-[24%]">Email</th>
-                <th className="hidden w-[16%] px-3 py-3 md:table-cell">Phone</th>
-                <th className="w-[24%] px-3 py-3 lg:w-[6%]">Status</th>
+                <th scope="col" className="w-[34%] px-3 py-3">Contact Detail</th>
+                <th scope="col" className="hidden w-[20%] px-3 py-3 lg:table-cell">Company</th>
+                <th scope="col" className="w-[42%] px-3 py-3 lg:w-[24%]">Email</th>
+                <th scope="col" className="hidden w-[16%] px-3 py-3 md:table-cell">Phone</th>
+                <th scope="col" className="w-[24%] px-3 py-3 lg:w-[6%]">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
@@ -68,9 +108,7 @@ export default function Contacts() {
                   <tr key={contact.id} className="hover:bg-slate-50/50 transition-colors dark:hover:bg-gray-700/50">
                     <td className="px-3 py-3 align-middle">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-bold text-sm text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
-                          {contact.name.split(" ").map(w => w[0]).join("")}
-                        </div>
+                        <Avatar name={contact.name} className="h-10 w-10 text-sm font-bold" />
                         <span className="min-w-0 break-words text-sm font-bold text-slate-900 dark:text-white">{contact.name}</span>
                       </div>
                     </td>
@@ -114,6 +152,31 @@ export default function Contacts() {
           </table>
         </div>
       </div>
+
+      {/* Add Contact Modal Dialog */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-slate-900/40 backdrop-blur-xs animate-fade-in md:items-center md:p-4 dark:bg-black/60">
+          <div className="absolute inset-0" onClick={handleCloseModal} aria-hidden="true" />
+          <div
+            className="relative z-10 h-full w-full overflow-y-auto border border-slate-200/50 bg-white p-4 shadow-xl transition-transform duration-300 md:h-auto md:max-h-[90vh] md:max-w-lg md:rounded-2xl md:p-5 dark:border-gray-700 dark:bg-gray-900"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
+            <button
+              onClick={handleCloseModal}
+              className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500/20 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+              aria-label="Close dialog"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <ContactForm
+              onSubmit={handleFormSubmit}
+              onCancel={handleCloseModal}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

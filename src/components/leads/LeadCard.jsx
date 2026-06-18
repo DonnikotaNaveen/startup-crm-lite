@@ -1,14 +1,16 @@
+import React from "react";
 import { Edit3, Trash2, Mail, Phone, Calendar, Globe } from "lucide-react";
 import StatusBadge from "./StatusBadge";
+import Avatar from "../common/Avatar";
 
 /**
  * LeadCard displays a grid card for a lead prospect with dark mode support.
+ * Memoized to prevent re-renders when parent state triggers.
+ *
+ * @param {{ lead: Object, onEdit: Function, onDelete: Function }} props
+ * @returns {JSX.Element}
  */
-export default function LeadCard({ lead, onEdit, onDelete }) {
-  const initials = lead.name
-    ? lead.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
-    : "LD";
-
+const LeadCard = React.memo(({ lead, onEdit, onDelete }) => {
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
     try {
@@ -22,9 +24,7 @@ export default function LeadCard({ lead, onEdit, onDelete }) {
         {/* Header: Initials + Actions */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50 font-bold text-sm text-blue-600 dark:text-blue-400 border border-blue-100/30 dark:border-blue-900/40">
-              {initials}
-            </div>
+            <Avatar name={lead.name} className="h-10 w-10 text-sm" />
             <div className="min-w-0">
               <h3 className="text-sm font-bold text-slate-900 dark:text-gray-100 truncate">{lead.name}</h3>
               <p className="text-xs font-semibold text-slate-400 dark:text-gray-500 truncate mt-0.5">{lead.company}</p>
@@ -94,4 +94,8 @@ export default function LeadCard({ lead, onEdit, onDelete }) {
       </div>
     </div>
   );
-}
+});
+
+LeadCard.displayName = "LeadCard";
+
+export default LeadCard;
