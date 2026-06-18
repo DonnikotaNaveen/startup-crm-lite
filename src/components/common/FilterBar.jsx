@@ -19,7 +19,7 @@ export default function FilterBar({ activeFilter, onFilterChange, leads = [] }) 
             onClick={() => onFilterChange(status)}
             aria-pressed={isActive}
             className={`
-              inline-flex items-center gap-1.5 px-3.5 py-1.5
+              inline-flex min-h-11 items-center gap-1.5 px-3.5 py-1.5
               rounded-full text-xs font-semibold
               border transition-all duration-200
               focus:outline-none focus:ring-2 focus:ring-blue-500/30

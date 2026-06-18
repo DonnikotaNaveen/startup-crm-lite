@@ -1,4 +1,3 @@
-import React from "react";
 import { TrendingUp, Calendar, ArrowUpRight, Award, ShieldAlert } from "lucide-react";
 
 export default function Reports() {
@@ -105,7 +104,7 @@ export default function Reports() {
                   <Calendar className="h-3.5 w-3.5" />
                   <span>{rep.date}</span>
                 </div>
-                <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-blue-600 transition-all cursor-pointer dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-blue-400">
+                <button className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-blue-600 transition-all cursor-pointer dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-blue-400">
                   <ArrowUpRight className="h-4 w-4" />
                 </button>
               </div>

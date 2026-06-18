@@ -1,4 +1,3 @@
-import React from "react"; // Import React core
 import { Link } from "react-router-dom"; // Import Link component to enable fast routing transition back to home
 import { FileQuestion, ArrowLeft } from "lucide-react"; // Import decorative icons to present a 404 state
 

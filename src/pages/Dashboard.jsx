@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { 
@@ -6,12 +6,9 @@ import {
   UserCheck, 
   Percent, 
   DollarSign, 
-  Calendar, 
-  Menu,
-  Sparkles
+  Calendar
 } from "lucide-react";
 
-import Sidebar from "../components/layout/Sidebar";
 import StatsCard from "../components/dashboard/StatsCard";
 import PipelineOverview from "../components/dashboard/PipelineOverview";
 import RecentLeads from "../components/dashboard/RecentLeads";
@@ -38,7 +35,6 @@ const mockProspectPool = [
 export default function Dashboard() {
   const navigate = useNavigate();
   const { leads, addLead } = useLeads();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Compute stats metrics dynamically based on current CRM lead state
   const stats = useMemo(() => {
@@ -147,48 +143,18 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] transition-colors duration-200 dark:bg-gray-950">
+    <div className="space-y-6 animate-fade-in md:space-y-8">
       {/* Toast Notification Container */}
       <Toaster position="top-right" />
 
-      {/* Main Sidebar Navigation Layout */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-
-      {/* Main Content Area shifted left on desktop screen widths */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
-        
-        {/* Mobile Header Bar */}
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 shadow-xs lg:hidden dark:border-gray-700 dark:bg-gray-900/90">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-              aria-expanded={sidebarOpen}
-              aria-controls="main-sidebar"
-              aria-label="Open navigation sidebar"
-            >
-              <Menu className="h-5.5 w-5.5" />
-            </button>
-            <span className="text-base font-extrabold text-slate-900 tracking-tight dark:text-white">
-              Startup CRM Lite
-            </span>
-          </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
-            DN
-          </div>
-        </header>
-
-        {/* Dashboard Views Container */}
-        <main className="flex-1 p-6 md:p-8 space-y-8 animate-fade-in max-w-7xl w-full mx-auto">
-          
           {/* Header Panel */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
                 
                 <span></span>
               </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mt-1 dark:text-white">
+              <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                 Welcome Back, Naveen
               </h1>
               <p className="text-sm font-semibold text-slate-400 mt-1 dark:text-gray-400">
@@ -197,14 +163,14 @@ export default function Dashboard() {
             </div>
 
             {/* Date Widget */}
-            <div className="flex items-center gap-2.5 px-4.5 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs self-start md:self-auto dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex min-h-11 items-center gap-2.5 self-start rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 shadow-xs md:self-auto dark:border-gray-700 dark:bg-gray-800">
               <Calendar className="h-4.5 w-4.5 text-slate-400" />
               <span className="text-xs font-extrabold text-slate-600 dark:text-gray-300">{formattedDate}</span>
             </div>
           </div>
 
           {/* Stats Cards Dashboard Section */}
-          <section className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatsCard
               title="Total Leads"
               value={stats.totalLeads}
@@ -236,8 +202,8 @@ export default function Dashboard() {
           </section>
 
           {/* Secondary Layout Section: Pipeline breakdown and Quick Actions */}
-          <section className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
+          <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div>
               <PipelineOverview leads={leads} />
             </div>
             <div>
@@ -254,8 +220,6 @@ export default function Dashboard() {
             <RecentLeads leads={leads} />
           </section>
 
-        </main>
-      </div>
     </div>
   );
 }

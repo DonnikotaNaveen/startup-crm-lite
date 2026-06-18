@@ -1,4 +1,3 @@
-import React from "react"; // Import the standard React library to build components
 import { NavLink } from "react-router-dom"; // Import NavLink for standard active-state aware navigation
 import { LayoutDashboard, Users, BarChart3, Activity } from "lucide-react"; // Import icons from Lucide for clear visual identifiers
 import DarkModeToggle from "./DarkModeToggle";

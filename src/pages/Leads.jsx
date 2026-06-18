@@ -143,23 +143,23 @@ export default function Leads() {
 
         <button
           onClick={handleOpenAddModal}
-          className="flex items-center justify-center gap-1.5 px-4.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/10 hover:shadow-lg transition-all duration-200 cursor-pointer self-start sm:self-auto focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="flex min-h-11 items-center justify-center gap-1.5 self-start rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-500/10 transition-all duration-200 hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:self-auto"
         >
           <Plus className="h-4.5 w-4.5" /> Add Lead
         </button>
       </div>
 
       {/* ── Search + View toggle ────────────────────────────────────────── */}
-      <div className="flex w-full max-w-full flex-col gap-3 overflow-hidden bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs md:flex-row dark:border-gray-700 dark:bg-gray-800">
+      <div className="flex w-full max-w-full flex-col gap-3 overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs md:flex-row dark:border-gray-700 dark:bg-gray-800">
 
         {/* SearchBar component — debounced */}
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
         {/* Table / Card view toggle */}
-        <div className="flex items-center border border-slate-200/60 rounded-xl p-0.5 bg-slate-50 shrink-0 dark:border-gray-700 dark:bg-gray-900">
+        <div className="hidden shrink-0 items-center rounded-xl border border-slate-200/60 bg-slate-50 p-0.5 md:flex lg:hidden dark:border-gray-700 dark:bg-gray-900">
           <button
             onClick={() => setViewMode("table")}
-            className={`p-1.5 rounded-lg transition-all focus:outline-none cursor-pointer ${
+            className={`flex h-11 w-11 items-center justify-center rounded-lg transition-all focus:outline-none ${
               viewMode === "table"
                 ? "bg-white text-blue-600 shadow-xs border-slate-200/20 dark:bg-gray-800 dark:text-blue-400"
                 : "text-slate-400 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-200"
@@ -170,7 +170,7 @@ export default function Leads() {
           </button>
           <button
             onClick={() => setViewMode("card")}
-            className={`p-1.5 rounded-lg transition-all focus:outline-none cursor-pointer ${
+            className={`flex h-11 w-11 items-center justify-center rounded-lg transition-all focus:outline-none ${
               viewMode === "card"
                 ? "bg-white text-blue-600 shadow-xs border-slate-200/20 dark:bg-gray-800 dark:text-blue-400"
                 : "text-slate-400 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-200"
@@ -193,8 +193,7 @@ export default function Leads() {
       <div className="w-full max-w-full overflow-hidden transition-all duration-300">
 
         {/* Table view (hidden on mobile) */}
-        {viewMode === "table" && (
-          <div className="hidden w-full max-w-full overflow-hidden md:block">
+        <div className={`hidden w-full max-w-full overflow-hidden ${viewMode === "table" ? "md:block" : "md:hidden"} lg:block`}>
             {filteredLeads.length > 0 ? (
               <LeadTable
                 leads={filteredLeads}
@@ -208,12 +207,11 @@ export default function Leads() {
               />
             )}
           </div>
-        )}
 
         {/* Card view — always rendered on mobile, or when toggled */}
-        <div className={viewMode === "table" ? "md:hidden" : ""}>
+        <div className={viewMode === "table" ? "md:hidden lg:hidden" : "lg:hidden"}>
           {filteredLeads.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {filteredLeads.map((lead) => (
                 <LeadCard
                   key={lead.id}
@@ -234,13 +232,13 @@ export default function Leads() {
 
       {/* ── Add / Edit Modal ────────────────────────────────────────────── */}
       {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in dark:bg-black/60">
+          <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-slate-900/40 backdrop-blur-xs animate-fade-in md:items-center md:p-4 dark:bg-black/60">
           {/* Backdrop close */}
           <div className="absolute inset-0" onClick={handleCloseModal} aria-hidden="true" />
 
           {/* Modal content */}
           <div
-            className="relative w-full max-w-xl bg-white rounded-2xl shadow-xl border border-slate-200/50 p-5 z-10 transform scale-100 transition-transform duration-300 max-h-[90vh] overflow-y-auto dark:border-gray-700 dark:bg-gray-900"
+            className="relative z-10 h-full w-full overflow-y-auto border border-slate-200/50 bg-white p-4 shadow-xl transition-transform duration-300 md:h-auto md:max-h-[90vh] md:max-w-lg md:rounded-2xl md:p-5 dark:border-gray-700 dark:bg-gray-900"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -248,7 +246,7 @@ export default function Leads() {
             {/* Close button */}
             <button
               onClick={handleCloseModal}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500/20 cursor-pointer dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+              className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500/20 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200"
               aria-label="Close dialog"
             >
               <X className="h-5 w-5" />

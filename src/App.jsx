@@ -1,4 +1,3 @@
-import React from "react"; // Import React core library
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter component to handle browser-side routing history
 import AppRoutes from "./routes"; // Import the routes mapping index containing all of the route definitions
 

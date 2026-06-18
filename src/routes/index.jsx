@@ -37,17 +37,9 @@ export default function AppRoutes() {
   return (
     <React.Suspense fallback={<AppLoading />}>
       <Routes>
-        {/* 
-          The Dashboard is mounted directly.
-          It renders its own self-contained Sidebar drawer for state isolation.
-        */}
-        <Route path="/" element={<Dashboard />} />
-
-        {/* 
-          General dashboard pages are wrapped in the shared Sidebar Layout shell.
-          This provides navigation transitions and highlights active routes.
-        */}
         <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+
           {/* Route for Lead Management */}
           <Route path="leads" element={<Leads />} />
 

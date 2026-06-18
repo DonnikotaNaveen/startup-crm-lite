@@ -1,4 +1,3 @@
-import React from "react";
 import { SearchX, Users } from "lucide-react";
 
 /**
@@ -48,7 +47,7 @@ export default function EmptyState({ totalLeads = 0, onClearFilters }) {
       {isFiltered && (
         <button
           onClick={onClearFilters}
-          className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm shadow-blue-500/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
+          className="mt-5 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-500/20 transition-all duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
         >
           Clear filters
         </button>

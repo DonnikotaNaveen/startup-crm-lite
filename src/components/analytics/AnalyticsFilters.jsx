@@ -14,7 +14,7 @@ export const AnalyticsFilters = React.memo(({ dateRange, onDateRangeChange }) =>
         <button
           key={range.value}
           onClick={() => onDateRangeChange(range.value)}
-          className={`rounded-xl px-3 py-2 text-sm font-bold transition-all sm:px-4 ${
+          className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold transition-all sm:px-4 ${
             dateRange === range.value
               ? 'bg-blue-600 text-white shadow-sm'
               : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'

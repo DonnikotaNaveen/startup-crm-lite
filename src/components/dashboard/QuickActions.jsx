@@ -44,7 +44,7 @@ export default function QuickActions({ onAddLead, onViewLeads, onExportData }) {
             <button
               key={idx}
               onClick={action.action}
-              className="group flex flex-col items-start text-left p-4 rounded-xl
+              className="group flex min-h-11 flex-col items-start rounded-xl p-4 text-left
                 border border-slate-200/60 dark:border-gray-700
                 bg-white dark:bg-gray-800
                 hover:bg-slate-50/50 dark:hover:bg-gray-700

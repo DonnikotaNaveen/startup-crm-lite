@@ -1,4 +1,3 @@
-import React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -12,7 +11,7 @@ export default function DarkModeToggle({ compact = false }) {
       aria-pressed={isDarkMode}
       aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
       className={`group inline-flex items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 ${
-        compact ? "gap-2 px-2.5 py-2" : "w-full justify-between gap-3 px-4 py-3"
+        compact ? "min-h-11 gap-2 px-2.5 py-2" : "min-h-11 w-full justify-between gap-3 px-4 py-3"
       }`}
     >
       {!compact && (

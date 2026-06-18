@@ -232,9 +232,11 @@ export const calculateForecastRevenue = (leads, range = '30') => {
 
 export const calculateTopPerformers = (leads) => {
   const performers = new Map();
+  const safeLeads = normalizeLeads(leads);
+  const wonLeads = safeLeads.filter((lead) => lead.status === 'Won');
+  const sourceLeads = wonLeads.length ? wonLeads : safeLeads;
 
-  normalizeLeads(leads)
-    .filter((lead) => lead.status === 'Won')
+  sourceLeads
     .forEach((lead) => {
       const name = getOwnerName(lead);
       const current = performers.get(name) || { name, deals: 0, revenue: 0 };

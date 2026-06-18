@@ -56,22 +56,22 @@ export default function Analytics() {
             </div>
 
             {/* Charts Grid */}
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
               <PieChartCard data={analytics.statusDistribution} />
               <FunnelChartCard data={analytics.funnelData} />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
               <BarChartCard data={analytics.monthlyLeads} />
               <LineChartCard data={analytics.conversionByMonth} />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
               <RevenueChartCard data={analytics.revenueByMonth} />
               <LeadSourceChart data={analytics.leadSources} />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
               <SalesVelocityCard salesVelocity={analytics.salesVelocity} />
               <ForecastCard
                 forecastRevenue={analytics.forecastRevenue}
