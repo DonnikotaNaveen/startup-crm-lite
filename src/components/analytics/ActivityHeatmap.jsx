@@ -26,7 +26,7 @@ export const ActivityHeatmap = React.memo(({ data }) => {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800">
       <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">Activity Heatmap</h3>
@@ -51,7 +51,7 @@ export const ActivityHeatmap = React.memo(({ data }) => {
                 {day.hours.map((hour) => (
                   <div
                     key={`${day.day}-${hour.hour}`}
-                    className={`h-6 rounded-md border ${getColor(hour.count)}`}
+                    className={`h-6 rounded-md border transition-all hover:scale-110 cursor-pointer ${getColor(hour.count)}`}
                     title={`${day.day} ${hour.hour}:00 - ${hour.count} leads`}
                   />
                 ))}

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { 
   Users, 
   UserCheck, 
@@ -14,6 +14,8 @@ import PipelineOverview from "../components/dashboard/PipelineOverview";
 import RecentLeads from "../components/dashboard/RecentLeads";
 import QuickActions from "../components/dashboard/QuickActions";
 import { useLeads } from "../context/LeadContext";
+import { toastSuccess } from "../utils/toast";
+import { calculateConversionRate } from "../utils/analyticsHelpers";
 
 // Potential mock prospects for the "Add Lead" quick action trigger
 const mockProspectPool = [
@@ -42,10 +44,8 @@ export default function Dashboard() {
     // Context status mappings: "Meeting Scheduled", "Proposal Sent", and "Won" qualify as high-value leads
     const qualifiedLeads = leads.filter((l) => ["Meeting Scheduled", "Proposal Sent", "Won"].includes(l.status)).length;
     
-    // Conversion rate defined as percentage of qualified leads out of total leads
-    const conversionRate = totalLeads > 0 
-      ? ((qualifiedLeads / totalLeads) * 100).toFixed(1) + "%" 
-      : "0.0%";
+    // Conversion rate defined as percentage of Won leads out of total leads, matching the Analytics page formula
+    const conversionRate = calculateConversionRate(leads).toFixed(1) + "%";
 
     // Revenue Potential calculated as total deal values of Qualified prospects
     const totalRevenuePotential = leads
@@ -93,15 +93,7 @@ export default function Dashboard() {
       value: randomProspect.value
     });
 
-    toast.success(`Prospect "${randomProspect.name}" added to ${randomProspect.company}!`, {
-      style: {
-        borderRadius: "12px",
-        background: "#0F172A",
-        color: "#FFF",
-        fontSize: "14px",
-        fontWeight: "600",
-      },
-    });
+    toastSuccess(`Prospect "${randomProspect.name}" added to ${randomProspect.company}!`);
   };
 
   /**
@@ -130,16 +122,7 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
 
-    toast.success("CSV file downloaded successfully!", {
-      icon: "💾",
-      style: {
-        borderRadius: "12px",
-        background: "#0F172A",
-        color: "#FFF",
-        fontSize: "14px",
-        fontWeight: "600",
-      },
-    });
+    toastSuccess("CSV file downloaded successfully!", "💾");
   };
 
   return (
@@ -147,78 +130,77 @@ export default function Dashboard() {
       {/* Toast Notification Container */}
       <Toaster position="top-right" />
 
-          {/* Header Panel */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
-                
-                <span></span>
-              </div>
-              <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                Welcome Back, Naveen
-              </h1>
-              <p className="text-sm font-semibold text-slate-400 mt-1 dark:text-gray-400">
-                Here is a quick overview of your sales performance for this period.
-              </p>
-            </div>
-
-            {/* Date Widget */}
-            <div className="flex min-h-11 items-center gap-2.5 self-start rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 shadow-xs md:self-auto dark:border-gray-700 dark:bg-gray-800">
-              <Calendar className="h-4.5 w-4.5 text-slate-400" />
-              <span className="text-xs font-extrabold text-slate-600 dark:text-gray-300">{formattedDate}</span>
-            </div>
+      {/* Header Panel */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
+            <span></span>
           </div>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+            Welcome Back, Naveen
+          </h1>
+          <p className="text-sm font-semibold text-slate-400 mt-1 dark:text-gray-400">
+            Here is a quick overview of your sales performance for this period.
+          </p>
+        </div>
 
-          {/* Stats Cards Dashboard Section */}
-          <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatsCard
-              title="Total Leads"
-              value={stats.totalLeads}
-              icon={Users}
-              change="+15.2%"
-              color="blue"
-            />
-            <StatsCard
-              title="Qualified Leads"
-              value={stats.qualifiedLeads}
-              icon={UserCheck}
-              change="+8.3%"
-              color="green"
-            />
-            <StatsCard
-              title="Conversion Rate"
-              value={stats.conversionRate}
-              icon={Percent}
-              change="+2.4%"
-              color="yellow"
-            />
-            <StatsCard
-              title="Revenue Potential"
-              value={stats.revenuePotential}
-              icon={DollarSign}
-              change="+18.4%"
-              color="indigo"
-            />
-          </section>
+        {/* Date Widget */}
+        <div className="flex min-h-11 items-center gap-2.5 self-start rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 shadow-xs md:self-auto dark:border-gray-700 dark:bg-gray-800">
+          <Calendar className="h-4.5 w-4.5 text-slate-400" />
+          <span className="text-xs font-extrabold text-slate-600 dark:text-gray-300">{formattedDate}</span>
+        </div>
+      </div>
 
-          {/* Secondary Layout Section: Pipeline breakdown and Quick Actions */}
-          <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div>
-              <PipelineOverview leads={leads} />
-            </div>
-            <div>
-              <QuickActions 
-                onAddLead={handleAddLead}
-                onViewLeads={handleViewLeads}
-                onExportData={handleExportData}
-              />
-            </div>
-          </section>
+      {/* Stats Cards Dashboard Section — items-stretch ensures equal heights */}
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 items-stretch">
+        <StatsCard
+          title="Total Leads"
+          value={stats.totalLeads}
+          icon={Users}
+          change="+15.2%"
+          color="blue"
+          onClick={() => navigate("/leads")}
+        />
+        <StatsCard
+          title="Qualified Leads"
+          value={stats.qualifiedLeads}
+          icon={UserCheck}
+          change="+8.3%"
+          color="green"
+          onClick={() => navigate("/leads")}
+        />
+        <StatsCard
+          title="Conversion Rate"
+          value={stats.conversionRate}
+          icon={Percent}
+          change="+2.4%"
+          color="yellow"
+          onClick={() => navigate("/analytics")}
+        />
+        <StatsCard
+          title="Revenue Potential"
+          value={stats.revenuePotential}
+          icon={DollarSign}
+          change="+18.4%"
+          color="indigo"
+          onClick={() => navigate("/analytics")}
+        />
+      </section>
 
-          {/* Recent Leads Table list */}
-          <section>
-            <RecentLeads leads={leads} />
-          </section>
+      {/* Secondary Layout Section: Pipeline breakdown and Quick Actions */}
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 items-stretch">
+        <PipelineOverview leads={leads} />
+        <QuickActions 
+          onAddLead={handleAddLead}
+          onViewLeads={handleViewLeads}
+          onExportData={handleExportData}
+        />
+      </section>
+
+      {/* Recent Leads Table list */}
+      <section>
+        <RecentLeads leads={leads} />
+      </section>
 
     </div>
   );

@@ -14,7 +14,7 @@ export const TopPerformersCard = React.memo(({ data }) => {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800">
       <h3 className="mb-6 text-lg font-bold text-slate-900 dark:text-white">Top Performers by Won Revenue</h3>
       <div className="space-y-4">
         {data.slice(0, 10).map((performer, index) => {
@@ -31,7 +31,7 @@ export const TopPerformersCard = React.memo(({ data }) => {
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 dark:bg-gray-900">
                   <div
-                    className="bg-blue-500 h-2 rounded-full transition-all"
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-500"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>

@@ -15,7 +15,7 @@ const INITIAL_CONTACTS = [
 ];
 
 /**
- * ContactProvider manages contacts state list and registration functions.
+ * ContactProvider manages contacts state list and full CRUD operations.
  *
  * @param {{ children: React.ReactNode }} props
  * @returns {JSX.Element}
@@ -33,7 +33,29 @@ export const ContactProvider = ({ children }) => {
     return newContact;
   }, [setContacts]);
 
-  const value = useMemo(() => ({ contacts, addContact }), [contacts, addContact]);
+  /**
+   * Updates an existing contact by ID.
+   * @param {number|string} id - Contact identifier.
+   * @param {Object} updatedData - Partial fields to merge.
+   */
+  const updateContact = useCallback((id, updatedData) => {
+    setContacts((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updatedData } : c))
+    );
+  }, [setContacts]);
+
+  /**
+   * Removes a contact from the list by ID.
+   * @param {number|string} id - Contact identifier.
+   */
+  const deleteContact = useCallback((id) => {
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+  }, [setContacts]);
+
+  const value = useMemo(
+    () => ({ contacts, addContact, updateContact, deleteContact }),
+    [contacts, addContact, updateContact, deleteContact]
+  );
 
   return <ContactContext.Provider value={value}>{children}</ContactContext.Provider>;
 };
@@ -41,7 +63,7 @@ export const ContactProvider = ({ children }) => {
 /**
  * Custom hook to consume the Contacts context.
  *
- * @returns {{ contacts: typeof INITIAL_CONTACTS, addContact: Function }}
+ * @returns {{ contacts: Array, addContact: Function, updateContact: Function, deleteContact: Function }}
  */
 export const useContacts = () => {
   const context = useContext(ContactContext);

@@ -29,7 +29,7 @@ export default function QuickActions({ onAddLead, onViewLeads, onExportData }) {
   ];
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xs">
+    <div className="rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xs h-full flex flex-col justify-between">
       <div className="mb-5">
         <h2 className="text-lg font-bold text-slate-900 dark:text-gray-100 leading-snug">Quick Actions</h2>
         <p className="text-xs font-semibold text-slate-400 dark:text-gray-500 mt-0.5">
@@ -44,7 +44,7 @@ export default function QuickActions({ onAddLead, onViewLeads, onExportData }) {
             <button
               key={idx}
               onClick={action.action}
-              className="group flex min-h-11 flex-col items-start rounded-xl p-4 text-left
+              className="group flex min-h-[148px] flex-col items-start rounded-xl p-4 text-left
                 border border-slate-200/60 dark:border-gray-700
                 bg-white dark:bg-gray-800
                 hover:bg-slate-50/50 dark:hover:bg-gray-700

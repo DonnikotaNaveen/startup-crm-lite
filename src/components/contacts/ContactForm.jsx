@@ -1,19 +1,21 @@
 import { useState } from "react";
 
 /**
- * ContactForm component handles adding contact records.
+ * ContactForm component handles adding and editing contact records.
  * Implements form validation rules matching the design system guidelines.
  *
- * @param {{ onSubmit: Function, onCancel: Function }} props
+ * @param {{ onSubmit: Function, onCancel: Function, initialData?: Object }} props
  * @returns {JSX.Element}
  */
-export default function ContactForm({ onSubmit, onCancel }) {
+export default function ContactForm({ onSubmit, onCancel, initialData = null }) {
+  const isEditing = Boolean(initialData);
+
   const [formData, setFormData] = useState({
-    name: "",
-    company: "",
-    email: "",
-    phone: "",
-    status: "Active",
+    name: initialData?.name ?? "",
+    company: initialData?.company ?? "",
+    email: initialData?.email ?? "",
+    phone: initialData?.phone ?? "",
+    status: initialData?.status ?? "Active",
   });
 
   const [errors, setErrors] = useState({});
@@ -54,11 +56,15 @@ export default function ContactForm({ onSubmit, onCancel }) {
     }
   };
 
+  const inputBase = "min-h-11 w-full px-3.5 py-2 bg-slate-50 border focus:bg-white rounded-xl text-sm font-medium focus:outline-none transition-all dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-900";
+  const inputNormal = "border-slate-200 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-500";
+  const inputError = "border-rose-500 focus:border-rose-500";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       {/* Title */}
-      <h2 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3 dark:border-gray-700 dark:text-white">
-        Add New Contact
+      <h2 id="modal-title" className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3 dark:border-gray-700 dark:text-white">
+        {isEditing ? "Edit Contact" : "Add New Contact"}
       </h2>
 
       {/* Grid wrapper */}
@@ -75,11 +81,7 @@ export default function ContactForm({ onSubmit, onCancel }) {
             value={formData.name}
             onChange={handleChange}
             placeholder="Jane Doe"
-            className={`min-h-11 w-full px-3.5 py-2 bg-slate-50 border focus:bg-white rounded-xl text-sm font-medium focus:outline-none transition-all ${
-              errors.name
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
-                : "border-slate-200 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-500"
-            } dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-900`}
+            className={`${inputBase} ${errors.name ? inputError : inputNormal}`}
           />
           {errors.name && <p className="text-xs font-semibold text-rose-500">{errors.name}</p>}
         </div>
@@ -96,11 +98,7 @@ export default function ContactForm({ onSubmit, onCancel }) {
             value={formData.company}
             onChange={handleChange}
             placeholder="Innovate Tech"
-            className={`min-h-11 w-full px-3.5 py-2 bg-slate-50 border focus:bg-white rounded-xl text-sm font-medium focus:outline-none transition-all ${
-              errors.company
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
-                : "border-slate-200 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-500"
-            } dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-900`}
+            className={`${inputBase} ${errors.company ? inputError : inputNormal}`}
           />
           {errors.company && <p className="text-xs font-semibold text-rose-500">{errors.company}</p>}
         </div>
@@ -117,11 +115,7 @@ export default function ContactForm({ onSubmit, onCancel }) {
             value={formData.email}
             onChange={handleChange}
             placeholder="jane@innovate.co"
-            className={`min-h-11 w-full px-3.5 py-2 bg-slate-50 border focus:bg-white rounded-xl text-sm font-medium focus:outline-none transition-all ${
-              errors.email
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
-                : "border-slate-200 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-500"
-            } dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-900`}
+            className={`${inputBase} ${errors.email ? inputError : inputNormal}`}
           />
           {errors.email && <p className="text-xs font-semibold text-rose-500">{errors.email}</p>}
         </div>
@@ -138,11 +132,7 @@ export default function ContactForm({ onSubmit, onCancel }) {
             value={formData.phone}
             onChange={handleChange}
             placeholder="+1 (555) 123-4567"
-            className={`min-h-11 w-full px-3.5 py-2 bg-slate-50 border focus:bg-white rounded-xl text-sm font-medium focus:outline-none transition-all ${
-              errors.phone
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
-                : "border-slate-200 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-500"
-            } dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:bg-gray-900`}
+            className={`${inputBase} ${errors.phone ? inputError : inputNormal}`}
           />
           {errors.phone && <p className="text-xs font-semibold text-rose-500">{errors.phone}</p>}
         </div>
@@ -170,15 +160,15 @@ export default function ContactForm({ onSubmit, onCancel }) {
         <button
           type="button"
           onClick={onCancel}
-          className="min-h-11 px-4.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-slate-500/20 cursor-pointer dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          className="min-h-11 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-slate-500/20 cursor-pointer dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="min-h-11 px-4.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+          className="min-h-11 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
         >
-          Create Contact
+          {isEditing ? "Save Changes" : "Create Contact"}
         </button>
       </div>
     </form>

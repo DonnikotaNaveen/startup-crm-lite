@@ -17,7 +17,7 @@ const StatusBadge = React.memo(({ status }) => {
   const className = styles[status] ?? "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 border-slate-200/80 dark:border-gray-600";
 
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ${className}`}>
+    <span className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-bold ${className}`}>
       {status}
     </span>
   );
@@ -26,3 +26,4 @@ const StatusBadge = React.memo(({ status }) => {
 StatusBadge.displayName = "StatusBadge";
 
 export default StatusBadge;
+

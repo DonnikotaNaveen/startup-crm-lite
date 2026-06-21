@@ -53,42 +53,44 @@ export default function PipelineOverview({ leads = [] }) {
   }, [leads]);
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xs">
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-gray-100 leading-snug">Pipeline Funnel Overview</h2>
-        <p className="text-xs font-semibold text-slate-400 dark:text-gray-500 mt-1">
-          Distribution and conversion status of {stats.total} total leads in the CRM database.
-        </p>
-      </div>
+    <div className="rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xs h-full flex flex-col justify-between">
+      <div>
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-gray-100 leading-snug">Pipeline Funnel Overview</h2>
+          <p className="text-xs font-semibold text-slate-400 dark:text-gray-500 mt-1">
+            Distribution and conversion status of {stats.total} total leads in the CRM database.
+          </p>
+        </div>
 
-      {/* Stacked bar */}
-      <div className="relative mb-8">
-        <div className="flex h-4.5 w-full rounded-full bg-slate-100 dark:bg-gray-800 overflow-hidden shadow-inner">
-          {stats.stages.map((stage) => {
-            if (stage.count === 0) return null;
-            return (
-              <div
-                key={stage.key}
-                style={{ width: `${stage.percentage}%` }}
-                className={`${stage.colorClass} h-full first:rounded-l-full last:rounded-r-full transition-all duration-500 ease-out hover:opacity-90 cursor-pointer`}
-                title={`${stage.label}: ${stage.count} (${stage.percentage}%)`}
-                role="progressbar"
-                aria-valuenow={stage.percentage}
-                aria-valuemin="0"
-                aria-valuemax="100"
-              />
-            );
-          })}
-          {stats.total === 0 && (
-            <div className="w-full h-full text-center text-[10px] font-bold text-slate-400 dark:text-gray-500 py-0.5">
-              No active pipeline leads found.
-            </div>
-          )}
+        {/* Stacked bar */}
+        <div className="relative mb-8">
+          <div className="flex h-4.5 w-full rounded-full bg-slate-100 dark:bg-gray-800 overflow-hidden shadow-inner">
+            {stats.stages.map((stage) => {
+              if (stage.count === 0) return null;
+              return (
+                <div
+                  key={stage.key}
+                  style={{ width: `${stage.percentage}%` }}
+                  className={`${stage.colorClass} h-full first:rounded-l-full last:rounded-r-full transition-all duration-500 ease-out hover:opacity-90 cursor-pointer`}
+                  title={`${stage.label}: ${stage.count} (${stage.percentage}%)`}
+                  role="progressbar"
+                  aria-valuenow={stage.percentage}
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                />
+              );
+            })}
+            {stats.total === 0 && (
+              <div className="w-full h-full text-center text-[10px] font-bold text-slate-400 dark:text-gray-500 py-0.5">
+                No active pipeline leads found.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Stage breakdown cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.stages.map((stage) => (
           <div
             key={stage.key}

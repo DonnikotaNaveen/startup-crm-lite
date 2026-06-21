@@ -23,7 +23,7 @@ export default function Analytics() {
   const isEmpty = analytics?.totalLeads === 0;
 
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50 animate-fade-in dark:bg-gray-950">
+    <div className="space-y-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -55,23 +55,23 @@ export default function Analytics() {
               />
             </div>
 
-            {/* Charts Grid */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+            {/* Charts Grid — items-stretch ensures equal heights per row */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 items-stretch">
               <PieChartCard data={analytics.statusDistribution} />
               <FunnelChartCard data={analytics.funnelData} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 items-stretch">
               <BarChartCard data={analytics.monthlyLeads} />
               <LineChartCard data={analytics.conversionByMonth} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 items-stretch">
               <RevenueChartCard data={analytics.revenueByMonth} />
               <LeadSourceChart data={analytics.leadSources} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 items-stretch">
               <SalesVelocityCard salesVelocity={analytics.salesVelocity} />
               <ForecastCard
                 forecastRevenue={analytics.forecastRevenue}

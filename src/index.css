@@ -11,8 +11,43 @@
 }
 
 /* Preserve animation-specific transitions (don't override) */
-.animate-fade-in, .animate-spin, .animate-pulse {
-  transition: none;
+.animate-fade-in, .animate-spin, .animate-pulse, .skeleton {
+  transition: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Skeleton Shimmer Animation ────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.6) 25%,
+    rgba(203, 213, 225, 0.8) 37%,
+    rgba(226, 232, 240, 0.6) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+:where(.dark) .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(31, 41, 55, 0.6) 25%,
+    rgba(55, 65, 81, 0.8) 37%,
+    rgba(31, 41, 55, 0.6) 63%
+  );
+  background-size: 400% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @theme {
